@@ -32,3 +32,5 @@ management:
 
 server:
   port: ${PORT:8080}
+  shutdown: graceful
+  forward-headers-strategy: framework
