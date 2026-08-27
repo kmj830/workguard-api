@@ -9,14 +9,13 @@ spring:
   ai:
     google:
       genai:
-        api-key: ${GEMINI_API_KEY:}
+        api-key: ${GEMINI_API_KEY:AIzaSyDummyKeyForStartup}
         chat:
           options:
             model: gemini-2.0-flash
 
 springdoc:
   swagger-ui:
-    path: /api
     tags-sorter: alpha
     operations-sorter: alpha
   api-docs:
