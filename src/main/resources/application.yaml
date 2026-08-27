@@ -11,5 +11,14 @@ spring:
       genai:
         api-key: ${GEMINI_API_KEY:AIzaSyDummyKeyForStartup}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
 server:
   port: ${PORT:8080}

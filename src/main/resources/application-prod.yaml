@@ -32,6 +32,15 @@ spring:
         format_sql: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
 server:
   port: ${PORT:8080}
   shutdown: graceful
