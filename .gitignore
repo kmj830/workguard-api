@@ -35,3 +35,10 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Secrets & Local Env (Prevent git commit) ###
+SECRETS*
+*.env
+*.key.json
+*.secret
+
