@@ -1,3 +1,15 @@
 spring:
   application:
     name: workguard-api
+  cloud:
+    gcp:
+      project-id: ${GCP_PROJECT_ID:workguard-506815}
+      storage:
+        enabled: false
+  ai:
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY:AIzaSyDummyKeyForStartup}
+
+server:
+  port: ${PORT:8080}
