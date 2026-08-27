@@ -14,6 +14,14 @@ spring:
           options:
             model: gemini-2.0-flash
 
+springdoc:
+  swagger-ui:
+    path: /api
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+
 management:
   endpoints:
     web:
