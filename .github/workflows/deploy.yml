@@ -6,11 +6,10 @@ on:
       - main
 
 env:
-  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  GCP_REGION: ${{ secrets.GCP_REGION || 'asia-northeast3' }}
-  GAR_LOCATION: ${{ secrets.GAR_LOCATION || 'asia-northeast3' }}
-  GAR_REPOSITORY: ${{ secrets.GAR_REPOSITORY || 'workguard-repo' }}
-  SERVICE_NAME: ${{ secrets.CLOUD_RUN_SERVICE_NAME || 'workguard-api' }}
+  GCP_REGION: asia-northeast3
+  GAR_LOCATION: asia-northeast3
+  GAR_REPOSITORY: workguard-repo
+  SERVICE_NAME: workguard-api
 
 jobs:
   deploy:
@@ -19,7 +18,7 @@ jobs:
 
     permissions:
       contents: read
-      id-token: write # Workload Identity Federation 인증에 필요
+      id-token: write
 
     steps:
       - name: Checkout repository
@@ -27,11 +26,8 @@ jobs:
 
       # ----------------------------------------------------
       # Google Cloud 인증
-      # 1) Workload Identity Federation (WIF) 사용 시:
-      #    - GCP_WORKLOAD_IDENTITY_PROVIDER: projects/NUM/locations/global/workloadIdentityPools/POOL/providers/PROVIDER
-      #    - GCP_SERVICE_ACCOUNT: sa-name@project-id.iam.gserviceaccount.com
-      # 2) Service Account Key JSON 사용 시:
-      #    - GCP_SA_KEY: 서비스 계정 키 JSON 문자열
+      # 1) Workload Identity Federation (WIF)
+      # 2) 서비스 계정 키 JSON
       # ----------------------------------------------------
       - name: Authenticate to Google Cloud (WIF)
         if: "${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER != '' }}"
@@ -55,19 +51,20 @@ jobs:
 
       - name: Build and Push Docker image
         env:
-          IMAGE_TAG: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
-          IMAGE_LATEST: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/${{ env.SERVICE_NAME }}:latest
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
         run: |
-          docker build -t $IMAGE_TAG -t $IMAGE_LATEST .
-          docker push $IMAGE_TAG
-          docker push $IMAGE_LATEST
+          IMAGE_TAG="${{ env.GAR_LOCATION }}-docker.pkg.dev/${GCP_PROJECT_ID}/${{ env.GAR_REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
+          IMAGE_LATEST="${{ env.GAR_LOCATION }}-docker.pkg.dev/${GCP_PROJECT_ID}/${{ env.GAR_REPOSITORY }}/${{ env.SERVICE_NAME }}:latest"
+          docker build -t "$IMAGE_TAG" -t "$IMAGE_LATEST" .
+          docker push "$IMAGE_TAG"
+          docker push "$IMAGE_LATEST"
 
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: ${{ env.SERVICE_NAME }}
-          image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+          image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
           region: ${{ env.GCP_REGION }}
           flags: >-
             --cpu=1
