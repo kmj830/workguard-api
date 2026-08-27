@@ -9,7 +9,10 @@ spring:
   ai:
     google:
       genai:
-        api-key: ${GEMINI_API_KEY:AIzaSyDummyKeyForStartup}
+        api-key: ${GEMINI_API_KEY:}
+        chat:
+          options:
+            model: gemini-2.5-flash
 
 management:
   endpoints:
